@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, Integer, Text, Date, DateTime, ForeignKey
+from sqlalchemy import String, Boolean, Integer, Text, Date, DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
@@ -16,9 +16,9 @@ class User(db.Model):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), default=True, nullable=False)
-    subscription_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    subscription_date: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     favorite_characters: Mapped[list["FavoriteCharacter"]] = relationship("FavoriteCharacter", back_populates="user", cascade="all, delete-orphan")
@@ -52,8 +52,8 @@ class Planet(db.Model):
     climate: Mapped[str] = mapped_column(String(100), nullable=True)
     terrain: Mapped[str] = mapped_column(String(100), nullable=True)
     surface_water: Mapped[str] = mapped_column(String(20), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     characters: Mapped[list["Character"]] = relationship("Character", back_populates="homeworld")
@@ -93,8 +93,8 @@ class Species(db.Model):
     average_lifespan: Mapped[str] = mapped_column(String(20), nullable=True)
     language: Mapped[str] = mapped_column(String(100), nullable=True)
     homeworld_id: Mapped[int] = mapped_column(Integer, ForeignKey('planets.id'), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     homeworld: Mapped["Planet"] = relationship("Planet", back_populates="species")
@@ -134,8 +134,8 @@ class Character(db.Model):
     gender: Mapped[str] = mapped_column(String(20), nullable=True)
     homeworld_id: Mapped[int] = mapped_column(Integer, ForeignKey('planets.id'), nullable=True)
     species_id: Mapped[int] = mapped_column(Integer, ForeignKey('species.id'), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=datetime.utcnow)
     
     # Relationships
     homeworld: Mapped["Planet"] = relationship("Planet", back_populates="characters")
@@ -173,8 +173,8 @@ class Film(db.Model):
     director: Mapped[str] = mapped_column(String(100), nullable=True)
     producer: Mapped[str] = mapped_column(String(255), nullable=True)
     release_date: Mapped[Date] = mapped_column(Date, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     film_characters: Mapped[list["FilmCharacter"]] = relationship("FilmCharacter", back_populates="film", cascade="all, delete-orphan")
@@ -200,7 +200,7 @@ class FavoriteCharacter(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False)
     character_id: Mapped[int] = mapped_column(Integer, ForeignKey('characters.id'), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="favorite_characters")
@@ -221,7 +221,7 @@ class FavoritePlanet(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False)
     planet_id: Mapped[int] = mapped_column(Integer, ForeignKey('planets.id'), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="favorite_planets")
@@ -242,7 +242,7 @@ class FilmCharacter(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     film_id: Mapped[int] = mapped_column(Integer, ForeignKey('films.id'), nullable=False)
     character_id: Mapped[int] = mapped_column(Integer, ForeignKey('characters.id'), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     
     # Relationships
     film: Mapped["Film"] = relationship("Film", back_populates="film_characters")
